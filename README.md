@@ -1,4 +1,5 @@
 # RC
+The purpose of this material is to provide a step-by-step overview of some of the main techniques employed in modern network application and services.
 
 ## TX/RX data over a network: socket
 
