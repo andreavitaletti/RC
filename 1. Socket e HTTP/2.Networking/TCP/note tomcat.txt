@@ -1,5 +1,0 @@
-
-localhost:8180
-
-/var/lib/tomcat5.5/webapps/test/GETPOST.htm
-
