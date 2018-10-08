@@ -1,0 +1,13 @@
+{
+  "name": "2.-node",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ip": "^1.1.5"
+  }
+}

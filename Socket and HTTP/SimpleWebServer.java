@@ -30,8 +30,7 @@ public class SimpleWebServer {
         while ((inputLine = in.readLine()) != null) {
 			// https://stackoverflow.com/questions/4758525/carriage-return-and-new-line-with-java-and-readline
 			if (inputLine.length() == 0) break;  
-        	System.out.println(inputLine);
-        	                 
+				System.out.println(inputLine);                
         }
         
         String message = new String(args[0]);
@@ -45,12 +44,7 @@ public class SimpleWebServer {
         out.println("<p><b>"+message+"</b></p> \r\n");
         out.println("</body> \r\n");
         out.println("</html> \r\n");
-        
-        
-        
-        
-        
-        
+
         
         out.close();
         in.close();

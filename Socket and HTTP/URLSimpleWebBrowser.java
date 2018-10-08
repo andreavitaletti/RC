@@ -6,8 +6,11 @@ public class URLSimpleWebBrowser {
     public static void main(String[] args) 
     	throws IOException {
 
+    // URL test = 
+    //   new URL("http://localhost:8080/semplicissimo.htm"); 
    
-   URL test = new URL("http://localhost/index.html"); 
+   
+   URL test = new URL("http://localhost:8180"); 
    
   
    
