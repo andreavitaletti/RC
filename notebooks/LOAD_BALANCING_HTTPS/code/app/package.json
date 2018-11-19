@@ -1,0 +1,17 @@
+{
+  "name": "2.-node",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^4.0.1",
+    "express": "^4.16.3",
+    "ip": "^1.1.5",
+    "request": "^2.88.0",
+    "ws": "^6.0.0"
+  }
+}
