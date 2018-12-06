@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0062)http://www.rabbitmq.com/tutorials/tutorial-one-javascript.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" class="gr__rabbitmq_com"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript" async="" src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/analytics.js"></script><script async="" src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/gtm.js"></script><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-NSPM4RC');</script><meta name="googlebot" content="NOODP"><meta name="google-site-verification" content="nSYeDgyKM9mw5CWcZuD0xu7iSWXlJijAlg9rcxVOYf4"><meta name="google-site-verification" content="6UEaC3SWhpGQvqRnSJIEm2swxXpM5Adn4dxZhFsNdw0"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1, minimum-scale=1, user-scalable=no" id="viewport" name="viewport"><link href="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/css" rel="stylesheet"><link rel="stylesheet" href="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/rabbit.css" type="text/css"><link rel="stylesheet" href="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/highlightjs_style.css" type="text/css"><!--[if IE 6]>
+      <link rel="stylesheet" href="/css/rabbit-ie6.css" type="text/css" />
+      <![endif]--><link rel="icon" type="/image/vnd.microsoft.icon" href="http://www.rabbitmq.com/favicon.ico"><link rel="stylesheet" href="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/tutorial.css" type="text/css"><script async="true" type="text/javascript" src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/site.js"></script><title>RabbitMQ tutorial - "Hello World!"  — RabbitMQ</title>
+</head>
+<body id="tutorials/tutorial-one-javascript" data-gr-c-s-loaded="true"><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NSPM4RC" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript><div id="outerContainer"><div class="container"><div class="rabbit-logo"><a href="http://www.rabbitmq.com/"><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/RabbitMQ-logo.svg" alt="RabbitMQ"></a></div><a class="btn menubtn" onclick="showHide()">Menu <img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/carrot-down-white.svg"></a><div class="mobilemenuicon" onclick="showHide()"><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/mobile-menu-icon.svg"></div><div id="nav"><ul id="mainNav"><li><a href="http://www.rabbitmq.com/#features">Features</a></li><li><a href="http://www.rabbitmq.com/#getstarted">Get Started</a></li><li><a href="http://www.rabbitmq.com/#support">Support</a></li><li><a href="http://www.rabbitmq.com/#community">Community</a></li><li><a href="http://www.rabbitmq.com/documentation.html">Docs</a></li><li><a href="http://www.rabbitmq.com/blog/">Blog</a></li></ul></div></div><div class="nav-separator"></div><div id="innerContainer" class="container">
+<div id="left-content" class="tutorial">
+<h2>Introduction</h2>
+<p></p><div class="aside" xml:base="site/tutorials/tutorials-help.xml.inc">
+<h3>Prerequisites</h3>
+<p>
+This tutorial assumes RabbitMQ is <a href="http://www.rabbitmq.com/download.html">installed</a> and running
+on <span class="code ">localhost</span> on standard port (<span class="code ">5672</span>). In case you use
+a different host, port or credentials, connections settings would require adjusting.
+</p>
+<h3>Where to get help</h3>
+<p>
+If you're having trouble going through this tutorial you can
+<a href="https://groups.google.com/forum/#!forum/rabbitmq-users">contact us</a> through the mailing list.
+</p>
+</div>
+<div xmlns="" xml:base="site/tutorials/tutorials-intro.xml.inc">
+<p>
+RabbitMQ is a message broker: it accepts and forwards messages.
+You can think about it as a post office: when you put the mail that you want posting in a post box,
+you can be sure that Mr. or Ms. Mailperson will eventually deliver the mail to your recipient.
+In this analogy, RabbitMQ is a post box, a post office and a postman.
+</p>
+<p>
+The major difference between RabbitMQ and the post office is that it doesn't deal with paper,
+instead it accepts, stores and forwards binary blobs of data ‒ <em>messages</em>.
+</p>
+<p>
+RabbitMQ, and messaging in general, uses some jargon.
+</p>
+<ul>
+<li>
+<p>
+<em>Producing</em> means nothing more than sending.
+A program that sends messages is a <em>producer</em> :
+ </p><div class="diagram">
+<img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/producer.png" height="50">
+<div class="diagram_source">
+digraph {
+bgcolor=transparent;
+truecolor=true;
+rankdir=LR;
+node [style="filled"];
+//
+P1 [label="P", fillcolor="#00ffff"];
+}
+</div>
+</div>
+<p></p>
+</li>
+<li>
+<p>
+<em>A queue</em> is the name for a post box which lives inside RabbitMQ.
+Although messages flow through RabbitMQ and your applications, they can only be stored inside a <em>queue</em>.
+A <em>queue</em> is only bound by the host's memory &amp; disk limits, it's essentially a large message buffer.
+Many <em>producers</em> can send messages that go to one queue, and many <em>consumers</em> can try to receive data from one <em>queue</em>.
+This is how we represent a queue:
+</p><div class="diagram">
+<img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/queue.png" height="90">
+<div class="diagram_source">
+digraph {
+bgcolor=transparent;
+truecolor=true;
+rankdir=LR;
+node [style="filled"];
+//
+subgraph cluster_Q1 {
+label="queue_name";
+color=transparent;
+Q1 [label="{||||}", fillcolor="red", shape="record"];
+};
+}
+</div>
+</div>
+<p></p>
+</li>
+<li>
+<p>
+<em>Consuming</em> has a similar meaning to receiving.
+A <em>consumer</em> is a program that mostly waits to receive messages:
+</p><div class="diagram">
+<img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/consumer.png" height="50">
+<div class="diagram_source">
+digraph {
+bgcolor=transparent;
+truecolor=true;
+rankdir=LR;
+node [style="filled"];
+//
+C1 [label="C", fillcolor="#33ccff"];
+}
+</div>
+</div>
+<p></p>
+</li>
+</ul>
+<p>
+Note that the producer, consumer, and broker do not have to reside on the same host; indeed in most applications they don't.
+An application can be both a producer and consumer, too.
+</p>
+</div><p></p>
+<h2>"Hello World"</h2>
+<h3>(using the amqp.node client)</h3>
+<p>In this part of the tutorial we'll write two small programs in Javascript; a
+producer that sends a single message, and a consumer that receives
+messages and prints them out. We'll gloss over some of the detail in
+the <a href="http://www.squaremobius.net/amqp.node/">amqp.node</a> API, concentrating on this very simple thing just to get
+started. It's a "Hello World" of messaging.</p>
+<p>In the diagram below, "P" is our producer and "C" is our consumer. The
+box in the middle is a queue - a message buffer that RabbitMQ keeps
+on behalf of the consumer.</p>
+<div class="diagram">
+<img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/python-one.png" alt="(P) -&gt; [|||] -&gt; (C)" height="60">
+</div>
+<blockquote>
+<h4>The amqp.node client library</h4>
+<p>RabbitMQ speaks multiple protocols. This tutorial uses AMQP 0-9-1, which is an open,
+general-purpose protocol for messaging. There are a number of clients
+for RabbitMQ in <a href="http://rabbitmq.com/devtools.html">many different
+languages</a>. We'll
+use the <a href="http://www.squaremobius.net/amqp.node/">amqp.node client</a> in this tutorial.</p>
+<p>First, install amqp.node using <a href="https://www.npmjs.com/">npm</a>:</p>
+<p></p><pre class="sourcecode bash hljs">npm install amqplib
+</pre><p></p>
+</blockquote>
+<p>Now we have amqp.node installed, we can write some
+code.</p>
+<h3>Sending</h3>
+<div class="diagram">
+<img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/sending.png" alt="(P) -&gt; [|||]" height="100">
+</div>
+<p>We'll call our message publisher (sender) <span class="code ">send.js</span> and our message consumer (receiver)
+<span class="code ">receive.js</span>. The publisher will connect to RabbitMQ, send a single message,
+then exit.</p>
+<p>In
+<a href="https://github.com/rabbitmq/rabbitmq-tutorials/blob/master/javascript-nodejs/src/send.js"><span class="code ">send.js</span></a>,
+we need to require the library first:</p>
+<pre class="sourcecode javascript hljs"><span class="hljs-meta">#!/usr/bin/env node</span>
+
+<span class="hljs-keyword">var</span> amqp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'amqplib/callback_api'</span>);
+</pre>
+<p>then connect to RabbitMQ server</p>
+<pre class="sourcecode javascript hljs">amqp.connect(<span class="hljs-string">'amqp://localhost'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, conn</span>) </span>{});
+</pre>
+<p>Next we create a channel, which is where most of the API for getting
+things done resides:</p>
+<pre class="sourcecode javascript hljs">amqp.connect(<span class="hljs-string">'amqp://localhost'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, conn</span>) </span>{
+  conn.createChannel(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, ch</span>) </span>{});
+});
+</pre>
+<p>To send, we must declare a queue for us to send to; then we can publish a message
+to the queue:</p>
+<pre class="sourcecode javascript hljs">amqp.connect(<span class="hljs-string">'amqp://localhost'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, conn</span>) </span>{
+  conn.createChannel(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, ch</span>) </span>{
+    <span class="hljs-keyword">var</span> q = <span class="hljs-string">'hello'</span>;
+
+    ch.assertQueue(q, {<span class="hljs-attr">durable</span>: <span class="hljs-literal">false</span>});
+    <span class="hljs-comment">// Note: on Node 6 Buffer.from(msg) should be used</span>
+    ch.sendToQueue(q, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">'Hello World!'</span>));
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">" [x] Sent 'Hello World!'"</span>);
+  });
+});
+</pre>
+<p>Declaring a queue is idempotent - it will only be created if it doesn't
+exist already. The message content is a byte array, so you can encode
+whatever you like there.</p>
+<p>Lastly, we close the connection and exit;</p>
+<pre class="sourcecode javascript hljs">setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ conn.close(); process.exit(<span class="hljs-number">0</span>) }, <span class="hljs-number">500</span>);
+</pre>
+<p><a href="https://github.com/rabbitmq/rabbitmq-tutorials/blob/master/javascript-nodejs/src/send.js">Here's the whole send.js script</a>.</p>
+<blockquote>
+<h4>Sending doesn't work!</h4>
+<p>If this is your first time using RabbitMQ and you don't see the "Sent"
+message then you may be left scratching your head wondering what could
+be wrong. Maybe the broker was started without enough free disk space
+(by default it needs at least 200 MB free) and is therefore refusing to
+accept messages. Check the broker logfile to confirm and reduce the
+limit if necessary. The <a href="http://www.rabbitmq.com/configure.html#config-items">configuration
+file documentation</a> will show you how to set <span class="code ">disk_free_limit</span>.</p>
+</blockquote>
+<h3>Receiving</h3>
+<p>That's it for our publisher. Our consumer is pushed messages from
+RabbitMQ, so unlike the publisher which publishes a single message, we'll
+keep it running to listen for messages and print them out.</p>
+<div class="diagram">
+<img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/receiving.png" alt="[|||] -&gt; (C)" height="100">
+</div>
+<p>The code (in <a href="https://github.com/rabbitmq/rabbitmq-tutorials/blob/master/javascript-nodejs/src/receive.js"><span class="code ">receive.js</span></a>) has the same require as <span class="code ">send</span>:</p>
+<pre class="sourcecode javascript hljs"><span class="hljs-meta">#!/usr/bin/env node</span>
+
+<span class="hljs-keyword">var</span> amqp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'amqplib/callback_api'</span>);
+</pre>
+<p>Setting up is the same as the publisher; we open a connection and a
+channel, and declare the queue from which we're going to consume.
+Note this matches up with the queue that <span class="code ">sendToQueue</span> publishes to.</p>
+<pre class="sourcecode javascript hljs">amqp.connect(<span class="hljs-string">'amqp://localhost'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, conn</span>) </span>{
+  conn.createChannel(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, ch</span>) </span>{
+    <span class="hljs-keyword">var</span> q = <span class="hljs-string">'hello'</span>;
+
+    ch.assertQueue(q, {<span class="hljs-attr">durable</span>: <span class="hljs-literal">false</span>});
+  });
+});
+</pre>
+<p>Note that we declare the queue here, as well. Because we might start
+the consumer before the publisher, we want to make sure the queue exists
+before we try to consume messages from it.</p>
+<p>We're about to tell the server to deliver us the messages from the
+queue. Since it will push us messages asynchronously, we provide a
+callback that will be executed when RabbitMQ pushes messages to
+our consumer. This is what <span class="code ">Channel.consume</span> does.</p>
+<pre class="sourcecode javascript hljs"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">" [*] Waiting for messages in %s. To exit press CTRL+C"</span>, q);
+ch.consume(q, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">msg</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">" [x] Received %s"</span>, msg.content.toString());
+}, {<span class="hljs-attr">noAck</span>: <span class="hljs-literal">true</span>});
+</pre>
+<p><a href="https://github.com/rabbitmq/rabbitmq-tutorials/blob/master/javascript-nodejs/src/receive.js">Here's the whole receive.js script</a>.</p>
+<h3>Putting it all together</h3>
+<p>Now we can run both scripts. In a terminal, from the rabbitmq-tutorials/javascript-nodejs/src/ folder, run the publisher:</p>
+<pre class="sourcecode bash hljs">./send.js
+</pre>
+<p>then, run the consumer:</p>
+<pre class="sourcecode bash hljs">./receive.js
+</pre>
+<p>The consumer will print the message it gets from the publisher via
+RabbitMQ. The consumer will keep running, waiting for messages (Use Ctrl-C to stop it), so try running
+the publisher from another terminal.</p>
+<blockquote>
+<h4>Listing queues</h4>
+<p>You may wish to see what queues RabbitMQ has and how many
+messages are in them. You can do it (as a privileged user) using the <span class="code ">rabbitmqctl</span> tool:</p>
+<p></p><pre class="sourcecode bash hljs">sudo rabbitmqctl list_queues
+</pre><p></p>
+<p>On Windows, omit the sudo:
+</p><pre class="sourcecode powershell hljs">rabbitmqctl.bat list_queues
+</pre><p></p>
+</blockquote>
+<p>Time to move on to <a href="http://www.rabbitmq.com/tutorials/tutorial-two-javascript.html">part 2</a> and build a simple <em>work queue</em>.</p>
+<div xmlns="" xml:base="site/tutorials/disclaimer.xml.inc">
+<h2>Production [Non-]Suitability Disclaimer</h2>
+<p>
+Please keep in mind that this and other tutorials are, well, tutorials.
+They demonstrate one new concept at a time and may intentionally oversimplify some things and leave out others. For example topics such as
+connection management, error handling, connection recovery, concurrency and metric collection are largely omitted
+for the sake of brevity. Such simplified code should not be considered production ready.
+</p>
+<p>
+Please take a look at the rest of the <a href="http://www.rabbitmq.com/documentation.html">documentation</a> before going live with your app.
+We particularly recommend the following guides: <a href="http://www.rabbitmq.com/confirms.html">Publisher Confirms and Consumer Acknowledgements</a>,
+<a href="http://www.rabbitmq.com/production-checklist.html">Production Checklist</a> and <a href="http://www.rabbitmq.com/monitoring.html">Monitoring</a>.
+</p>
+</div>
+<div xmlns="" id="help-and-feedback" xml:base="site/tutorials/getting_help.xml.inc">
+<h2>Getting Help and Providing Feedback</h2>
+<p>
+If you have questions about the contents of this tutorial or
+any other topic related to RabbitMQ, don't hesitate to ask them
+on the <a href="https://groups.google.com/forum/#!forum/rabbitmq-users">RabbitMQ mailing list</a>.
+</p>
+</div>
+<div xmlns="" id="contribute" xml:base="site/tutorials/contribute.xml.inc">
+<h2>Help Us Improve the Docs &lt;3</h2>
+<p>
+If you'd like to contribute an improvement to the site,
+its source is <a href="https://github.com/rabbitmq/rabbitmq-website">available on GitHub</a>.
+Simply fork the repository and submit a pull request. Thank you!
+</p>
+</div>
+</div>
+<div id="right-nav" class="tutorial-one">
+<table id="tutorials" xml:base="site/tutorials/tutorials-menu.xml.inc">
+<tbody><tr>
+<td id="tutorial-one">
+<h2><span class="tute-num">1</span> <a href="http://www.rabbitmq.com/tutorials/tutorial-one-python.html">"Hello World!"</a></h2>
+<p>
+The simplest thing that does <em>something</em>
+</p>
+<p><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/python-one.png" width="180"></p>
+<ul>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-python.html">Python</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-java.html">Java</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-ruby.html">Ruby</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-php.html">PHP</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-dotnet.html">C#</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-javascript.html">JavaScript</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-go.html">Go</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-elixir.html">Elixir</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-objectivec.html">Objective-C</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-swift.html">Swift</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-one-spring-amqp.html">Spring AMQP</a></li>
+</ul>
+</td>
+<td id="tutorial-two">
+<h2><span class="tute-num">2</span> <a href="http://www.rabbitmq.com/tutorials/tutorial-two-python.html">Work queues</a></h2>
+<p>
+Distributing tasks among workers (the <a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html">competing consumers pattern</a>)
+</p>
+<p><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/python-two.png" width="180"></p>
+<ul>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-python.html">Python</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-java.html">Java</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-ruby.html">Ruby</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-php.html">PHP</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-dotnet.html">C#</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-javascript.html">JavaScript</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-go.html">Go</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-elixir.html">Elixir</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-objectivec.html">Objective-C</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-swift.html">Swift</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-two-spring-amqp.html">Spring AMQP</a></li>
+</ul>
+</td>
+<td id="tutorial-three">
+<h2><span class="tute-num">3</span> <a href="http://www.rabbitmq.com/tutorials/tutorial-three-python.html">Publish/Subscribe</a></h2>
+<p>
+Sending messages to many consumers at once
+</p>
+<p><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/python-three.png" height="50" width="180"></p>
+<ul>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-python.html">Python</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-java.html">Java</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-ruby.html">Ruby</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-php.html">PHP</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-dotnet.html">C#</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-javascript.html">JavaScript</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-go.html">Go</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-elixir.html">Elixir</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-objectivec.html">Objective-C</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-swift.html">Swift</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-three-spring-amqp.html">Spring AMQP</a></li>
+</ul>
+</td>
+</tr>
+<tr>
+<td id="tutorial-four">
+<h2><span class="tute-num">4</span> <a href="http://www.rabbitmq.com/tutorials/tutorial-four-python.html">Routing</a></h2>
+<p>
+Receiving messages selectively
+</p>
+<p><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/python-four.png" height="50" width="180"></p>
+<ul>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-python.html">Python</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-java.html">Java</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-ruby.html">Ruby</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-php.html">PHP</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-dotnet.html">C#</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-javascript.html">JavaScript</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-go.html">Go</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-elixir.html">Elixir</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-objectivec.html">Objective-C</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-swift.html">Swift</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-four-spring-amqp.html">Spring AMQP</a></li>
+</ul>
+</td>
+<td id="tutorial-five">
+<h2><span class="tute-num">5</span> <a href="http://www.rabbitmq.com/tutorials/tutorial-five-python.html">Topics</a></h2>
+<p>
+Receiving messages based on a pattern (topics)
+</p>
+<p><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/python-five.png" height="50" width="180"></p>
+<ul>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-python.html">Python</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-java.html">Java</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-ruby.html">Ruby</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-php.html">PHP</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-dotnet.html">C#</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-javascript.html">JavaScript</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-go.html">Go</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-elixir.html">Elixir</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-objectivec.html">Objective-C</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-swift.html">Swift</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-five-spring-amqp.html">Spring AMQP</a></li>
+</ul>
+</td>
+<td id="tutorial-six">
+<h2><span class="tute-num">6</span> <a href="http://www.rabbitmq.com/tutorials/tutorial-six-python.html">RPC</a></h2>
+<p>
+<a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/RequestReply.html">Request/reply pattern</a> example
+</p>
+<p><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/python-six.png" height="50" width="180"></p>
+<ul>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-python.html">Python</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-java.html">Java</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-ruby.html">Ruby</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-php.html">PHP</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-dotnet.html">C#</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-javascript.html">JavaScript</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-go.html">Go</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-elixir.html">Elixir</a></li>
+<li><a href="http://www.rabbitmq.com/tutorials/tutorial-six-spring-amqp.html">Spring AMQP</a></li>
+</ul>
+</td>
+</tr>
+</tbody></table>
+</div></div><div class="clear"></div><div class="pageFooter"><div class="container"><div class="rabbit-logo"><a href="http://www.rabbitmq.com/"><img src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/RabbitMQ-logo-white.svg" alt="RabbitMQ"></a></div><ul class="footerNav"><li><a href="http://www.rabbitmq.com/#features">Features</a></li><li><a href="http://www.rabbitmq.com/#getstarted">Get Started</a></li><li><a href="http://www.rabbitmq.com/#support">Support</a></li><li><a href="http://www.rabbitmq.com/#community">Community</a></li><li><a href="http://www.rabbitmq.com/documentation.html">Docs</a></li><li><a href="http://www.rabbitmq.com/blog/">Blog</a></li></ul><p id="copyright">
+Copyright © 2007-Present <a href="https://pivotal.io/">Pivotal Software</a>, Inc. All rights reserved.
+<a href="https://pivotal.io/legal">Terms of Use</a>,
+<a href="https://pivotal.io/privacy-policy">Privacy</a> and
+<a href="http://www.rabbitmq.com/trademark-guidelines.html">Trademark Guidelines</a><br><a id="teconsent" consent="0,1,2" style="display: inline;"><script src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/v1.7-97" async="async" crossorigin=""></script><a id="icon-id032645914038844026" tabindex="0" role="button" lang="en" style="cursor: pointer;">Cookie Preferences</a></a></p></div></div></div><script type="text/javascript" src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/highlight.pack.js"></script><script type="text/javascript">
+        // code highlighting
+        window.addEventListener("load", function() {
+          document.querySelectorAll("pre.sourcecode").forEach(function(el) {
+            hljs.highlightBlock(el);
+          });
+        });
+      </script>
+
+<script type="text/javascript" id="truste_0.6283475137992172" src="./RabbitMQ tutorial - _Hello World!_ — RabbitMQ_files/notice"></script></body></html>

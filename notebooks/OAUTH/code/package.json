@@ -10,7 +10,6 @@
     "express-logger": "0.0.3",
     "express-session": "^1.14.1",
     "oauth": "^0.9.14",
-    "request": "^2.88.0",
     "util-inspect": "^0.1.8"
   },
   "devDependencies": {},
