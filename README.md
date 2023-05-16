@@ -7,4 +7,3 @@ If you spot any error, or you have suggestion to improve, please open an issue.
 
 Please visit the [wiki](https://github.com/andreavitaletti/RC/wiki) page to get more details
 
-[![Follow Mohamed El-Qassas GitHub](https://avatars.githubusercontent.com/u/49816567?s=96&v=4)](https://github.com/melqassas/)
